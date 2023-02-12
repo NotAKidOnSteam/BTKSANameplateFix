@@ -1,4 +1,5 @@
-﻿using ABI_RC.Core.Player;
+﻿using ABI_RC.Core.Savior;
+using ABI_RC.Core.Player;
 using UnityEngine;
 
 namespace BTKSANameplateMod
@@ -13,6 +14,7 @@ namespace BTKSANameplateMod
         private PlayerNameplate _nameplate;
         private CanvasGroup _canvasGroup;
         private const float MaxSize = 1f;
+        private Transform _localCameraRig;
 
         private void Start()
         {
@@ -24,6 +26,8 @@ namespace BTKSANameplateMod
             if(_isHidden)
                 _nameplate.transform.localScale = Vector3.zero;
 
+            _localCameraRig = (MetaPort.Instance.isUsingVr ? PlayerSetup.Instance.vrCameraRig : PlayerSetup.Instance.desktopCameraRig).transform;
+
             BTKSANameplateMod.ActiveAdjusters.Add(this);
         }
 
@@ -32,7 +36,7 @@ namespace BTKSANameplateMod
             if (_isHidden || _isMenuOpen) return;
             if (!BTKSANameplateMod.CloseRangeFade.BoolValue && !BTKSANameplateMod.ScalingEnable.BoolValue) return;
             
-            float currentDist = Vector3.Distance(PlayerSetup.Instance._avatar.transform.position, _nameplate.transform.position);
+            float currentDist = Vector3.Distance(_localCameraRig.position, _nameplate.transform.position);
 
             if (BTKSANameplateMod.CloseRangeFade.BoolValue && (!BTKSANameplateMod.CloseRangeFadeFriends.BoolValue || !isFriend))
             {
@@ -79,6 +83,9 @@ namespace BTKSANameplateMod
             //Reset nameplate to default states
             _nameplate.transform.localScale = Vector3.one;
             _canvasGroup.alpha = 1;
+
+            //I may be lazy...
+            _localCameraRig = (MetaPort.Instance.isUsingVr ? PlayerSetup.Instance.vrCameraRig : PlayerSetup.Instance.desktopCameraRig).transform;
         }
 
         public void OnConfigUpdated()
